@@ -4,11 +4,24 @@ const dotenv = require('dotenv');
 const helmet = require('helmet');
 const mongoose = require('mongoose');
 const morgan = require('morgan');
+const userRoute = require('./routes/users')
+const authRoute = require('./routes/auth')
 
 dotenv.config();
-mongoose.connect(process.env.MONGO_URL, () => {
+mongoose.connect(process.env.MONGO_URL, (err) => {
+    if (err) {
+        console.log(err)
+    }
     console.log('Connected to Mongo DB')
 });
+
+// middleware
+app.use(express.json())
+app.use(helmet())
+app.use(morgan("common"))
+
+app.use('/api/users', userRoute)
+app.use('/api/auth', authRoute)
 
 app.listen(3000, () => {
     console.log('The server is running on 3000 port')
