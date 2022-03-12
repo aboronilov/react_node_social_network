@@ -15,14 +15,15 @@ mongoose.connect(process.env.MONGO_URL, (err) => {
     console.log('Connected to Mongo DB')
 });
 
-// middleware
-app.use(express.json())
-app.use(helmet())
-app.use(morgan("common"))
+//middleware
+app.use(express.json());
+app.use(helmet());
+app.use(morgan("common"));
 
-app.use('/api/users', userRoute)
-app.use('/api/auth', authRoute)
+app.use("/api/auth", authRoute);
+app.use("/api/users", userRoute);
+app.use("/api/posts", postRoute);
 
-app.listen(3000, () => {
-    console.log('The server is running on 3000 port')
-})
+app.listen(8800, () => {
+  console.log("Backend server is running!");
+});
