@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import "./rightbar.css";
 import { Users } from "../../dummyData";
 import Online from "../online/Online";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import { AuthContext } from "../../context/AuthContext";
+import { Add, Remome } from "@material-ui/icons";
 
 export default function Rightbar({ user }) {
   const HomeRightBar = () => {
@@ -28,6 +30,12 @@ export default function Rightbar({ user }) {
   const ProfileRightbar = () => {
     const PF = process.env.REACT_APP_PUBLIC_FOLDER;
     const [friends, setFriends] = useState([]);
+    const { user: curentUser, dispatch } = useContext(AuthContext);
+    const [followed, setFollowed] = useState(curentUser.followings.contains(user?.id));
+
+    useEffect(() => {
+      setFollowed(curentUser.followings.contains(user?.id));
+    }, [curentUser, user.id]);
 
     useEffect(() => {
       const getFriends = async () => {
@@ -39,9 +47,35 @@ export default function Rightbar({ user }) {
         }
       };
       getFriends();
-    }, [user._id]);
+    }, [user]);
+
+    const handleClick = async () => {
+      try {
+        if (followed) {
+          await axios.put("/users/" + user_id + "/unfollow/", {
+            userId: curentUser._id,
+          });
+          dispatch({type: "UNFOLLOW", payload: user_id});
+        } else {
+          await axios.put("/users/" + user_id + "/follow/", {
+            userId: curentUser._id,
+          });
+          dispatch({type: "FOLLOW", payload: user_id});
+        }
+      } catch (err) {
+        console.log(err);
+      }
+      setFollowed(!followed);
+    };
+
     return (
       <>
+        {user.username !== curentUser.username && (
+          <button className="rightBarFollowButton" onClick={handleClick}>
+            {followed ? "Unflollow" : "Flollow"}
+            {followed ? <Remome /> : <Add />}
+          </button>
+        )}
         <h4 className="rightbarTitle">User information</h4>
         <div className="rightbarInfo">
           <div className="rightbarInfoItem">
@@ -66,7 +100,10 @@ export default function Rightbar({ user }) {
         <h4 className="rightbarTitle">User friends</h4>
         <div className="rightbarFollowings">
           {friends.map((friend) => {
-            <Link to={"profile/"+friend.username} style={{textDecoration: 'none'}}>
+            <Link
+              to={"profile/" + friend.username}
+              style={{ textDecoration: "none" }}
+            >
               <div className="rightbarFollowing">
                 <img
                   src={

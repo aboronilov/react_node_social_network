@@ -1,3 +1,5 @@
+import { AccessTimeOutlined } from "@material-ui/icons";
+
 const AuthReducer = (state, action) => {
   switch (action.type) {
     case "LOGIN_START":
@@ -17,6 +19,22 @@ const AuthReducer = (state, action) => {
         user: null,
         isFetching: false,
         error: action.payload,
+      };
+    case "FOLLOW":
+      return {
+        ...state,
+        user: {
+          ...state.user,
+          followings: [...state.user.followings, action.payload],
+        },
+      };
+    case "UNFOLLOW":
+      return {
+        ...state,
+        user: {
+          ...state.user,
+          followings: state.user.followings.filter((item) => item !== action.payload),
+        },
       };
     default:
       return state;
